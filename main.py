@@ -32,6 +32,15 @@ def validate_entry(text: str) -> None:
     text.encode("utf-8")
     if not text.strip():
         raise ValueError("entry must not be only whitespace")
+    if text != text.strip():
+        raise ValueError("entry must not have leading or trailing whitespace")
+    # Reject control characters other than tab/newline: they would not
+    # survive cleanly in the single-line entry file.
+    for ch in text:
+        if (ord(ch) < 32 and ch not in ("\t", "\n")) or ord(ch) == 0x7F:
+            raise ValueError(
+                f"entry must not contain control character U+{ord(ch):04X}"
+            )
     if not 1 <= len(text) <= 200:
         raise ValueError(
             f"entry must be 1-200 characters, got {len(text)}"
